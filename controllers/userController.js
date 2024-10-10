@@ -1,21 +1,16 @@
-// controllers/userController.js
 const User = require('../models/user');
 
 // Create a new user (POST)
 const createUser = async (req, res) => {
-    const { name, age, surname } = req.body;
+    const { name, email, password } = req.body; // Include email and password
 
     // Validate input fields
-    if (!name || !age || !surname) {
-        return res.status(400).json({ message: 'Bad Request: Missing name, age, or surname' });
-    }
-
-    if (typeof age !== 'number' || age <= 0) {
-        return res.status(400).json({ message: 'Bad Request: Age must be a positive number' });
+    if (!name || !email || !password) {
+        return res.status(400).json({ message: 'Bad Request: Missing name, email, or password' });
     }
 
     try {
-        const newUser = new User({ name, age, surname });
+        const newUser = new User({ name, email, password }); // Create user with plain password
         await newUser.save();
         res.status(201).json({ message: 'User created successfully', data: newUser });
     } catch (err) {
@@ -33,10 +28,10 @@ const getUsers = async (req, res) => {
     }
 };
 
-
+// Update a user (PUT)
 const updateUser = async (req, res) => {
     const { id } = req.params;
-   const {name,age,surname} = req.User
+    const { name, email, password } = req.body; // Expect name, email, and password
 
     try {
         const user = await User.findById(id);
@@ -44,10 +39,12 @@ const updateUser = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        user.name = name || user.name;
-        user.age = age || user.age;
-        user.surname = surname || user.surname;
+        // Update fields only if they are provided
+        if (name) user.name = name;
+        if (email) user.email = email;
+        if (password) user.password = password; // Update password directly
 
+        await user.save(); // Don't forget to save the updated user
         res.json({ message: 'User updated successfully', data: user });
     } catch (err) {
         res.status(500).json({ message: 'Server Error: Unable to update user', error: err.message });

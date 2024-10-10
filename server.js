@@ -1,8 +1,8 @@
-// server.js
 const express = require('express');
 const cors = require('cors');
-const connectDB = require('./config/database');
-const userRoutes = require('./routes/users');
+const connectDB = require('./config/database'); // MongoDB connection
+const userRoutes = require('./routes/users'); // User-related routes
+const productRoutes = require('./routes/productsRouter'); // Product-related routes
 
 const ApiUrl = express();
 
@@ -11,12 +11,13 @@ connectDB();
 
 // Use middleware
 ApiUrl.use(cors());
-ApiUrl.use(express.json());
+ApiUrl.use(express.json({ limit: '50mb' })); // Allows larger payloads for product images
 
-// Define your routes
-ApiUrl.use('/users', userRoutes);
+// Define routes
+ApiUrl.use('/users', userRoutes); // User-related routes
+ApiUrl.use('/products', productRoutes); // Product-related routes
 
-// Define the server globally
-global.server = ApiUrl.listen(5001, () => {
-    console.log('Your API is running globally on port 5001');
+// Start the server
+ApiUrl.listen(5001, () => {
+  console.log('Your API is running on port 5001');
 });
